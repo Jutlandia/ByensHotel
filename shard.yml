@@ -8,6 +8,16 @@ targets:
   jutlandia:
     main: src/jutlandia.cr
 
-crystal: 1.2.1
+crystal: ">= 1.2.0"
+
+dependencies:
+  kemal:
+    github: kemalcr/kemal
+  kemal-session:
+    github: kemalcr/kemal-session
+  kemal-csrf:
+    github: kemalcr/kemal-csrf
+  kemal-form:
+    github: henrikac/kemal-form
 
 license: MIT
