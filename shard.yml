@@ -1,0 +1,13 @@
+name: jutlandia
+version: 0.1.0
+
+authors:
+  - Henrik Christensen <sensen1695@hotmail.com>
+
+targets:
+  jutlandia:
+    main: src/jutlandia.cr
+
+crystal: 1.2.1
+
+license: MIT
