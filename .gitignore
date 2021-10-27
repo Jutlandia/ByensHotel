@@ -3,3 +3,9 @@
 /bin/
 /.shards/
 *.dwarf
+
+# Environment
+.env
+
+# Vim
+*.swp
