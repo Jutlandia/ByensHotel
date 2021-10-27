@@ -19,5 +19,7 @@ dependencies:
     github: kemalcr/kemal-csrf
   kemal-form:
     github: henrikac/kemal-form
+  dotenv:
+    github: gdotdesign/cr-dotenv
 
 license: MIT
