@@ -22,4 +22,8 @@ dependencies:
   dotenv:
     github: gdotdesign/cr-dotenv
 
+development_dependencies:
+  spec-kemal:
+    github: kemalcr/spec-kemal
+
 license: MIT
