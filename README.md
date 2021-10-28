@@ -29,6 +29,10 @@ crystal eval 'require "random/secure"; puts Random::Secure.hex(64)'
 
 Run `Crystal run src/jutlandia.cr` to start the server.
 
+## Tests
+
+Run `KEMAL_ENV=test crystal spec` to run all specs.
+
 ## Contributing
 
 1. Fork it (<https://github.com/Jutlandia/ByensHotel/fork>)
