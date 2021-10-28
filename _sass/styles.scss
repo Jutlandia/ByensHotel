@@ -1,2 +1,44 @@
 @charset "utf-8";
+
+$black: #22222f;
+$green: #2dd32a;
+
+/* general styles */
+
+$body-color: $green;
+$body-background-color: $black;
+$footer-color: $green;
+$footer-background-color: $black;
+
+/* navbar styles */
+
+$navbar-background-color: $black;
+$navbar-item-color: $green;
+$navbar-item-hover-color: $black;
+$navbar-item-hover-background-color: $green;
+
+/* title styles */
+
+$title-color: $green;
+$subtitle-color: $green;
+
+/* form styles */
+
+$label-color: $green;
+$input-color: $black;
+$input-background-color: $green;
+$input-border-color: $black;
+$input-focus-color: $black;
+$input-hover-color: $black;
+$input-hover-border-color: $green;
+
+/* default button styles */
+
+$button-color: $black;
+$button-background-color: $green;
+$button-border-color: $black;
+$button-hover-color: $black;
+$button-hover-border-color: $green;
+
 @import "../node_modules/bulma/bulma.sass";
+

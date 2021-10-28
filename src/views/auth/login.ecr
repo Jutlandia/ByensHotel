@@ -2,7 +2,7 @@
 
 <div class="columns">
 	<div class="column is-4 is-offset-4">
-		<form method="POST" class="box">
+		<form method="POST">
 			<input type="hidden" name="authenticity_token" value='<%= env.session.string("csrf") %>'>
 			<% if !form.errors.empty? %>
 				<ul>
@@ -29,7 +29,7 @@
 
 			<div class="field">
 				<div class="control">
-					<button class="button is-link">Log in</button>
+					<button class="button">Log in</button>
 				</div>
 			</div>
 		</form>
