@@ -2,7 +2,7 @@
 
 <div class="columns">
 	<div class="column is-4 is-offset-4">
-		<form method="POST">
+		<form method="POST" class="px-3">
 			<input type="hidden" name="authenticity_token" value='<%= env.session.string("csrf") %>'>
 			<% if !form.errors.empty? %>
 				<ul>

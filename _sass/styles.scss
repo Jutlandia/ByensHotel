@@ -1,9 +1,11 @@
 @charset "utf-8";
 
-$black: #22222f;
-$green: #2dd32a;
+$black: #222222ff;
+$green: #2dd32aff;
 
 /* general styles */
+
+$body-family: monospace, sans-serif;
 
 $body-color: $green;
 $body-background-color: $black;
@@ -16,6 +18,14 @@ $navbar-background-color: $black;
 $navbar-item-color: $green;
 $navbar-item-hover-color: $black;
 $navbar-item-hover-background-color: $green;
+$navbar-burger-color: $green;
+
+.navbar-brand {
+	a.navbar-item:hover,
+	a.navbar-burger:hover {
+		color: $navbar-item-color;
+	}
+}
 
 /* title styles */
 
