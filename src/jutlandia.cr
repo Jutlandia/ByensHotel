@@ -4,7 +4,7 @@ require "kemal-session"
 require "kemal-csrf"
 require "./**"
 
-if Kemal.config.env == "development"
+if Kemal.config.env != "production"
   Dotenv.load
 end
 
