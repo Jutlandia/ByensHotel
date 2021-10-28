@@ -1,0 +1,20 @@
+{
+  "name": "jutlandia",
+  "version": "1.0.0",
+  "description": "TODO: Write a description here",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+	"css-build": "node-sass --omit-source-map-url _sass/styles.scss -o public/css",
+	"css-watch": "npm run css-build -- --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "bulma": "^0.9.3",
+    "node-sass": "^6.0.1"
+  }
+}
