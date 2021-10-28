@@ -2,17 +2,32 @@
 
 TODO: Write a description here
 
-## Installation
+## Requirements
 
-TODO: Write installation instructions here
++ [Crystal](https://crystal-lang.org/)
++ [npm](https://www.npmjs.com/)
+
+## Setup
+
+Copy `.env.sample` to `.env` and update accordingly.
+```
+cp .env.sample .env
+```
+To generate `SESSION_SECRET` run
+```
+crystal eval 'require "random/secure"; puts Random::Secure.hex(64)'
+```
+
+#### npm
++ Run `npm install` to install node modules.
++ Run `npm run css-build` to build required css styles.
+
+#### Crystal
++ Run `shards install` to install required Crystal shards.
 
 ## Usage
 
-TODO: Write usage instructions here
-
-## Development
-
-TODO: Write development instructions here
+Run `Crystal run src/jutlandia.cr` to start the server.
 
 ## Contributing
 
