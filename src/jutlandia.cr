@@ -9,11 +9,13 @@ if Kemal.config.env == "development"
   Dotenv.load
 end
 
+# TODO: configure session correctly
 Kemal::Session.config do |config|
   config.secret = ENV["SESSION_SECRET"]
   config.secure = Kemal.config.env == "production"
 end
 
+# TODO: configure csrf correctly
 add_handler CSRF.new
 
 get "/" do
