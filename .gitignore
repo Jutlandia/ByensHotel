@@ -4,8 +4,14 @@
 /.shards/
 *.dwarf
 
+# Node
+node_modules/
+
 # Environment
 .env
 
 # Vim
 *.swp
+
+# Styles
+public/css/styles.css
