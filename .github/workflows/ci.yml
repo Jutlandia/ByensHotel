@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: "0 3 * * 1" # Every monday at 3 AM
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    container:
+      image: crystallang/crystal
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: shards install
+      - name: Run specs
+        run: crystal spec
+        env:
+          KEMAL_ENV: test
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+      - name: Check formatting
+        run: crystal tool format --check
