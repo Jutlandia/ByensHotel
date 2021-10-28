@@ -1,3 +1,5 @@
+require "kemal-form"
+
 class RegisterForm < Kemal::Form
   field username : Kemal::Form::TextField,
                      attrs: {"class" => "input"},

@@ -2,7 +2,6 @@ require "dotenv"
 require "kemal"
 require "kemal-session"
 require "kemal-csrf"
-require "kemal-form"
 require "./**"
 
 if Kemal.config.env == "development"
