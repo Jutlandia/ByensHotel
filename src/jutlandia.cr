@@ -5,7 +5,7 @@ require "kemal-csrf"
 require "./**"
 
 if Kemal.config.env != "production"
-  Dotenv.load
+  Dotenv.load?
 end
 
 # TODO: configure session correctly
