@@ -7,7 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
-	"css-build": "node-sass --omit-source-map-url _sass/styles.scss -o public/css",
+	"css-build": "node-sass --omit-source-map-url web/_sass/styles.scss -o web/assets/css",
 	"css-watch": "npm run css-build -- --watch"
   },
   "keywords": [],

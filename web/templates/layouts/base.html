@@ -1,10 +1,11 @@
+{{ define "base" }}
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" href="/css/styles.css">
-		<title><%= page_title %> | Jutlandia</title>
+		<link rel="stylesheet" href="/static/css/styles.css">
+		<title>{{ block "title" . }}{{ end }} | Jutlandia</title>
 	</head>
 	<body>
 		<nav class="navbar" role="navigation" aria-label="main navigation">
@@ -35,15 +36,16 @@
 		</nav>
 
 		<main class="container">
-			<%= content %>
+			{{ template "content" .ContentData }}
 		</main>
 
 		<footer class="footer">
 			<div class="content has-text-centered">
-				<p>&copy; <%= Time.utc.year %> Jutlandia</p>
+				<p>&copy; {{ .LayoutData.Year }} Jutlandia</p>
 			</div>
 		</footer>
 
-		<script src="/js/styles.js"></script>
+		<script src="/static/js/styles.js"></script>
 	</body>
 </html>
+{{ end }}

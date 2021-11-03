@@ -4,7 +4,7 @@ TODO: Write a description here
 
 ## Requirements
 
-+ [Crystal](https://crystal-lang.org/)
++ [Go](https://golang.org/)
 + [npm](https://www.npmjs.com/)
 
 ## Setup
@@ -13,25 +13,20 @@ Copy `.env.sample` to `.env` and update accordingly.
 ```
 cp .env.sample .env
 ```
-To generate `SESSION_SECRET` run
-```
-crystal eval 'require "random/secure"; puts Random::Secure.hex(64)'
-```
+
+ByensHotel will run in development mode if `HOTEL_ENV` is not set.
 
 #### npm
 + Run `npm install` to install node modules.
 + Run `npm run css-build` to build required css styles.
 
-#### Crystal
-+ Run `shards install` to install required Crystal shards.
-
 ## Usage
 
-Run `Crystal run src/jutlandia.cr` to start the server.
+Run `go run main.go` to start the server.
 
 ## Tests
 
-Run `KEMAL_ENV=test crystal spec` to run all specs.
+Run `go test ./...` to run all specs.
 
 ## Contributing
 
