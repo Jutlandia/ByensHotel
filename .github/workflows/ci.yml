@@ -11,6 +11,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      CSRF_KEY: ${{ secrets.CSRF_KEY }}
 
     steps:
       - name: Install Go
