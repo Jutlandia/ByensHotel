@@ -1,9 +1,9 @@
-package forms_test
+package form_test
 
 import (
 	"testing"
 
-	"github.com/Jutlandia/ByensHotel/internal/forms"
+	"github.com/Jutlandia/ByensHotel/internal/form"
 )
 
 func TestLoginFormIsValid(t *testing.T) {
@@ -17,7 +17,7 @@ func TestLoginFormIsValid(t *testing.T) {
 		{Username: "", Password: "123123", Valid: false},
 		{Username: "", Password: "", Valid: false},
 	}
-	form := &forms.LoginForm{}
+	form := &form.Login{}
 	for _, input := range formInputs {
 		form.Username = input.Username
 		form.Password = input.Password
@@ -86,7 +86,7 @@ func TestRegisterFormIsValid(t *testing.T) {
 			Valid:           false,
 		},
 	}
-	form := &forms.RegisterForm{}
+	form := &form.Register{}
 	for _, input := range formInputs {
 		form.Username = input.Username
 		form.Email = input.Email

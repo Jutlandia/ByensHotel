@@ -8,37 +8,17 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/Jutlandia/ByensHotel/internal/config"
 	"github.com/Jutlandia/ByensHotel/internal/filesystem"
-	"github.com/Jutlandia/ByensHotel/internal/handlers"
-	"github.com/Jutlandia/ByensHotel/internal/templates"
+	"github.com/Jutlandia/ByensHotel/internal/handler"
+	"github.com/Jutlandia/ByensHotel/internal/tmpl"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
 
-var (
-	env     string
-	port    string
-	csrfKey string
-)
-
 func init() {
-	env = os.Getenv("HOTEL_ENV")
-	if env == "" {
-		env = "development"
-	}
-	if env != "production" {
-		godotenv.Load()
-	}
-	csrfKey = os.Getenv("CSRF_KEY")
-	if csrfKey == "" {
-		log.Fatal("missing csrf key")
-	}
-	port = os.Getenv("PORT")
-	if port == "" {
-		port = "1337"
-	}
-	templates.Load([]string{
+	tmpl.Load([]string{
 		"index.html",
 		"auth/login.html",
 		"auth/register.html",
@@ -47,6 +27,19 @@ func init() {
 }
 
 func main() {
+	env := os.Getenv("HOTEL_ENV")
+	if env == "" {
+		env = "development"
+	}
+	if env != "production" {
+		if err := godotenv.Load(); err != nil {
+			log.Fatal(err)
+		}
+	}
+	cfg, err := config.New()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 	pwd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -55,19 +48,19 @@ func main() {
 	fileserver := http.FileServer(filesystem.FileSystem{http.Dir(assets)})
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", handlers.HomeHandler).Methods(http.MethodGet)
-	r.HandleFunc("/login", handlers.LoginHandler).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/register", handlers.RegisterHandler).Methods(http.MethodGet, http.MethodPost)
+	r.HandleFunc("/", handler.Home).Methods(http.MethodGet)
+	r.HandleFunc("/login", handler.Login).Methods(http.MethodGet, http.MethodPost)
+	r.HandleFunc("/register", handler.Register).Methods(http.MethodGet, http.MethodPost)
 	r.HandleFunc("/favicon.ico", favIconHandler)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileserver))
 
 	srv := &http.Server{
-		Addr:         fmt.Sprintf("127.0.0.1:%s", port),
+		Addr:         fmt.Sprintf("127.0.0.1:%s", cfg.Server.Port),
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
 		Handler: csrf.Protect(
-			[]byte(csrfKey),
+			[]byte(cfg.Server.CsrfKey),
 			csrf.Secure(env == "production"),
 		)(r),
 	}

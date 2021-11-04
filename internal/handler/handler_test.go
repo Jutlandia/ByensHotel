@@ -1,4 +1,4 @@
-package handlers_test
+package handler_test
 
 import (
 	"bytes"
@@ -11,21 +11,24 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Jutlandia/ByensHotel/internal/handlers"
-	"github.com/Jutlandia/ByensHotel/internal/templates"
+	"github.com/Jutlandia/ByensHotel/internal/handler"
+	"github.com/Jutlandia/ByensHotel/internal/tmpl"
 )
+
+var templatesLoaded = false
 
 func loadTemplates(wd string) error {
 	err := os.Chdir(filepath.Join(wd, "..", ".."))
 	if err != nil {
 		return err
 	}
-	templates.Load([]string{
+	tmpl.Load([]string{
 		"index.html",
 		"auth/login.html",
 		"auth/register.html",
 		"layouts/base.html",
 	})
+	templatesLoaded = true
 	err = os.Chdir(wd)
 	if err != nil {
 		return err
@@ -38,18 +41,27 @@ func setUp() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = loadTemplates(pwd)
-	if err != nil {
-		log.Fatal(err)
+	if !templatesLoaded {
+		err = loadTemplates(pwd)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
-func TestLoginGet(t *testing.T) {
+func getResult(method string, path string, body io.Reader, h http.HandlerFunc) *http.Response {
 	setUp()
-	req := httptest.NewRequest(http.MethodGet, "/login", nil)
+	req := httptest.NewRequest(method, path, body)
+	if method == http.MethodPost {
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	}
 	w := httptest.NewRecorder()
-	handlers.LoginHandler(w, req)
-	resp := w.Result()
+	h(w, req)
+	return w.Result()
+}
+
+func TestLoginGet(t *testing.T) {
+	resp := getResult(http.MethodGet, "/login", nil, handler.Login)
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status code: %d\nGot status code: %d\n",
 			http.StatusOK, resp.StatusCode)
@@ -68,13 +80,8 @@ func TestLoginGet(t *testing.T) {
 }
 
 func TestLoginRedirectIfSuccess(t *testing.T) {
-	formData := "username=alice&password=123123"
-	req := httptest.NewRequest(http.MethodPost, "/login",
-		strings.NewReader(formData))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	w := httptest.NewRecorder()
-	handlers.LoginHandler(w, req)
-	resp := w.Result()
+	formData := strings.NewReader("username=alice&password=123123")
+	resp := getResult(http.MethodPost, "/login", formData, handler.Login)
 	if resp.StatusCode != http.StatusSeeOther {
 		t.Errorf("Expected status code: %d\nGot: %d\n",
 			http.StatusSeeOther, resp.StatusCode)
@@ -85,14 +92,8 @@ func TestLoginRedirectIfSuccess(t *testing.T) {
 }
 
 func TestLoginErrorMsg(t *testing.T) {
-	setUp()
-	formData := "username=&password="
-	req := httptest.NewRequest(http.MethodPost, "/login",
-		strings.NewReader(formData))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	w := httptest.NewRecorder()
-	handlers.LoginHandler(w, req)
-	resp := w.Result()
+	formData := strings.NewReader("username=&password=")
+	resp := getResult(http.MethodPost, "/login", formData, handler.Login)
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status code: %d\nGot: %d\n",
 			http.StatusOK, resp.StatusCode)
@@ -110,11 +111,7 @@ func TestLoginErrorMsg(t *testing.T) {
 }
 
 func TestRegisterGet(t *testing.T) {
-	setUp()
-	req := httptest.NewRequest(http.MethodGet, "/register", nil)
-	w := httptest.NewRecorder()
-	handlers.RegisterHandler(w, req)
-	resp := w.Result()
+	resp := getResult(http.MethodPost, "/register", nil, handler.Register)
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status code: %d\nGot status code: %d\n",
 			http.StatusOK, resp.StatusCode)
@@ -136,12 +133,7 @@ func TestRegisterGet(t *testing.T) {
 
 func TestRegisterRedirectIfSuccess(t *testing.T) {
 	formData := "username=alice&email=test@mail.com&password=123123&confirmPassword=123123"
-	req := httptest.NewRequest(http.MethodPost, "/register",
-		strings.NewReader(formData))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	w := httptest.NewRecorder()
-	handlers.RegisterHandler(w, req)
-	resp := w.Result()
+	resp := getResult(http.MethodPost, "/register", strings.NewReader(formData), handler.Register)
 	if resp.StatusCode != http.StatusSeeOther {
 		t.Errorf("Expected status code: %d\nGot: %d\n",
 			http.StatusSeeOther, resp.StatusCode)
@@ -152,14 +144,8 @@ func TestRegisterRedirectIfSuccess(t *testing.T) {
 }
 
 func TestRegisterErrorMsg(t *testing.T) {
-	setUp()
-	formData := "username=&email=&password=&confirmPassword="
-	req := httptest.NewRequest(http.MethodPost, "/register",
-		strings.NewReader(formData))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	w := httptest.NewRecorder()
-	handlers.RegisterHandler(w, req)
-	resp := w.Result()
+	formData := strings.NewReader("username=&email=&password=&confirmPassword=")
+	resp := getResult(http.MethodPost, "/register", formData, handler.Register)
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status code: %d\nGot: %d\n",
 			http.StatusOK, resp.StatusCode)

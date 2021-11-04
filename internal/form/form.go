@@ -1,4 +1,4 @@
-package forms
+package form
 
 import (
 	"regexp"
@@ -11,7 +11,7 @@ type Form interface {
 	IsValid() bool
 }
 
-type RegisterForm struct {
+type Register struct {
 	Username        string
 	Email           string
 	Password        string
@@ -19,7 +19,7 @@ type RegisterForm struct {
 	Errors          map[string]string
 }
 
-func (rf *RegisterForm) IsValid() bool {
+func (rf *Register) IsValid() bool {
 	rf.Errors = make(map[string]string)
 	if strings.TrimSpace(rf.Username) == "" {
 		rf.Errors["Username"] = "Please enter a username"
@@ -49,13 +49,13 @@ func (rf *RegisterForm) IsValid() bool {
 	return len(rf.Errors) == 0
 }
 
-type LoginForm struct {
+type Login struct {
 	Username string
 	Password string
 	Errors   map[string]string
 }
 
-func (lf *LoginForm) IsValid() bool {
+func (lf *Login) IsValid() bool {
 	lf.Errors = make(map[string]string)
 	if strings.TrimSpace(lf.Username) == "" {
 		lf.Errors["Username"] = "Please enter your username"

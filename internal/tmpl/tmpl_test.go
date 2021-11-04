@@ -1,4 +1,4 @@
-package templates_test
+package tmpl_test
 
 import "testing"
 

@@ -1,37 +1,37 @@
-package handlers
+package handler
 
 import (
 	"html/template"
 	"net/http"
 
-	"github.com/Jutlandia/ByensHotel/internal/forms"
-	"github.com/Jutlandia/ByensHotel/internal/templates"
+	"github.com/Jutlandia/ByensHotel/internal/form"
+	"github.com/Jutlandia/ByensHotel/internal/tmpl"
 	"github.com/gorilla/csrf"
 )
 
 type authPageData struct {
-	Form forms.Form
+	Form form.Form
 	CSRF template.HTML
 }
 
-func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	templates.Render(w, "index.html", nil)
+func Home(w http.ResponseWriter, r *http.Request) {
+	tmpl.Render(w, "index.html", nil)
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func Login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		templates.Render(w, "login.html", authPageData{
-			Form: &forms.LoginForm{},
+		tmpl.Render(w, "login.html", authPageData{
+			Form: &form.Login{},
 			CSRF: csrf.TemplateField(r),
 		})
 	case http.MethodPost:
-		lf := &forms.LoginForm{
+		lf := &form.Login{
 			Username: r.PostFormValue("username"),
 			Password: r.PostFormValue("password"),
 		}
 		if !lf.IsValid() {
-			templates.Render(w, "login.html", authPageData{
+			tmpl.Render(w, "login.html", authPageData{
 				Form: lf,
 				CSRF: csrf.TemplateField(r),
 			})
@@ -42,22 +42,22 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+func Register(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		templates.Render(w, "register.html", authPageData{
-			Form: &forms.RegisterForm{},
+		tmpl.Render(w, "register.html", authPageData{
+			Form: &form.Register{},
 			CSRF: csrf.TemplateField(r),
 		})
 	case http.MethodPost:
-		rf := &forms.RegisterForm{
+		rf := &form.Register{
 			Username:        r.PostFormValue("username"),
 			Email:           r.PostFormValue("email"),
 			Password:        r.PostFormValue("password"),
 			ConfirmPassword: r.PostFormValue("confirmPassword"),
 		}
 		if !rf.IsValid() {
-			templates.Render(w, "register.html", authPageData{
+			tmpl.Render(w, "register.html", authPageData{
 				Form: rf,
 				CSRF: csrf.TemplateField(r),
 			})

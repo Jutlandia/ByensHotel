@@ -1,4 +1,4 @@
-package templates
+package tmpl
 
 import (
 	"fmt"
@@ -17,6 +17,7 @@ type templateData struct {
 
 var templates map[string]*template.Template
 
+// Load builds and load templates into memory.
 func Load(tmpl []string) {
 	if templates == nil {
 		templates = make(map[string]*template.Template)
@@ -48,6 +49,7 @@ func Load(tmpl []string) {
 	log.Println("templates loaded successfully")
 }
 
+// Render renders template with the given name and data.
 func Render(w http.ResponseWriter, name string, data interface{}) {
 	tmpl, found := templates[name]
 	if !found {
