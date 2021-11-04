@@ -12,17 +12,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    container:
-      image: crystallang/crystal
-
     steps:
-      - uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.17.x'
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Install dependencies
-        run: shards install
-      - name: Run specs
-        run: crystal spec
+        run: go mod download
+      - name: Run tests
+        run: go test ./...
         env:
-          KEMAL_ENV: test
-          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
-      - name: Check formatting
-        run: crystal tool format --check
+          CSRF_KEY: 'some-32-byte-key'

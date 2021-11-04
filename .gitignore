@@ -14,4 +14,4 @@ node_modules/
 *.swp
 
 # Styles
-public/css/styles.css
+web/assets/css/styles.css

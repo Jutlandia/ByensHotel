@@ -1,0 +1,55 @@
+{{ define "title" }}Register{{ end }}
+
+{{ define "content" }}
+<h1 class="title has-text-centered my-6">Register</h1>
+
+<div class="columns">
+	<div class="column is-4 is-offset-4">
+		<form method="POST" class="px-3">
+			{{ .CSRF }}
+			<div class="field">
+				<label for="username">Username</label>
+				<div class="content">
+					<input type="text" id="username" name="username" class="input" value="{{ .Form.Username }}" required/>
+					{{ with .Form.Errors.Username }}
+						<span class="help is-danger">{{ . }}</span>
+					{{ end }}
+				</div>
+			</div>
+			<div class="field">
+				<label for="email">Email</label>
+				<div class="content">
+					<input type="email" id="email" name="email" class="input" value="{{ .Form.Email }}" required/>
+					{{ with .Form.Errors.Email }}
+						<span class="help is-danger">{{ . }}</span>
+					{{ end }}
+				</div>
+			</div>
+			<div class="field">
+				<label for="password">Password</label>
+				<div class="content">
+					<input type="password" id="password" name="password" class="input" value="{{ .Form.Password }}" required/>
+					{{ with .Form.Errors.Password }}
+						<span class="help is-danger">{{ . }}</span>
+					{{ end }}
+				</div>
+			</div>
+			<div class="field">
+				<label for="confirmPassword">Confirm Password</label>
+				<div class="content">
+					<input type="password" id="confirmPassword" name="confirmPassword" class="input" value="{{ .Form.ConfirmPassword }}" required/>
+					{{ with .Form.Errors.ConfirmPassword }}
+						<span class="help is-danger">{{ . }}</span>
+					{{ end }}
+				</div>
+			</div>
+
+			<div class="field">
+				<div class="control">
+					<button class="button">Register</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+{{ end }}
