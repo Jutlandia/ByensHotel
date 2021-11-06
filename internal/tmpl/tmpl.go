@@ -7,11 +7,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
+
+	"github.com/Jutlandia/ByensHotel/internal/client"
 )
 
 type templateData struct {
-	LayoutData  interface{}
+	Client      interface{}
 	ContentData interface{}
 }
 
@@ -50,7 +51,7 @@ func Load(tmpl []string) {
 }
 
 // Render renders template with the given name and data.
-func Render(w http.ResponseWriter, name string, data interface{}) {
+func Render(w http.ResponseWriter, r *http.Request, name string, data interface{}) {
 	tmpl, found := templates[name]
 	if !found {
 		http.Error(w,
@@ -59,9 +60,11 @@ func Render(w http.ResponseWriter, name string, data interface{}) {
 		return
 	}
 	tmplData := templateData{
-		LayoutData: struct {
-			Year int
-		}{Year: time.Now().Year()},
+		Client: struct {
+			IsAuthenticated bool
+		}{
+			IsAuthenticated: client.IsAuthenticated(r),
+		},
 		ContentData: data,
 	}
 	err := tmpl.Execute(w, tmplData)
