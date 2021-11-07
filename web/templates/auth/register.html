@@ -7,6 +7,9 @@
 	<div class="column is-4 is-offset-4">
 		<form method="POST" class="px-3">
 			{{ .CSRF }}
+			{{ with .Form.Errors.Overall }}
+				<span class="help is-danger">{{ . }}</span>
+			{{ end }}
 			<div class="field">
 				<label for="username">Username</label>
 				<div class="content">

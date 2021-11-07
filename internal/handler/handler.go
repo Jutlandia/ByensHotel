@@ -3,6 +3,7 @@ package handler
 import (
 	"html/template"
 	"net/http"
+	"strings"
 
 	"github.com/Jutlandia/ByensHotel/internal/client"
 	"github.com/Jutlandia/ByensHotel/internal/form"
@@ -90,7 +91,19 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
-		// TODO: check if user already exists
+		err := client.CreateUser(rf.Username, rf.Email, rf.Password)
+		if err != nil {
+			if strings.HasSuffix(err.Error(), "already exist") {
+				errMsg := strings.Replace(err.Error(), "a", "A", 1)
+				rf.AddError("Overall", errMsg)
+			} else {
+				rf.AddError("Overall", "Something went wrong")
+			}
+			tmpl.Render(w, r, "register.html", authPageData{
+				Form: rf,
+				CSRF: csrf.TemplateField(r),
+			})
+		}
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	}
 }

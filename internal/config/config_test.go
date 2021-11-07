@@ -32,8 +32,14 @@ func loadEnv(configs map[string]string) {
 
 func TestNew(t *testing.T) {
 	configs := map[string]string{
-		"PORT":     "9999",
-		"CSRF_KEY": "some-32-byte-key",
+		"SESSION_KEY":        "some-32-byte-key",
+		"PORT":               "9999",
+		"CSRF_KEY":           "some-32-byte-key",
+		"LDAP_HOST":          "localhost",
+		"LDAP_PORT":          "10389",
+		"LDAP_BIND_USERNAME": "cn=Hubert J. Farnsworth,ou=people,dc=planetexpress,dc=com",
+		"LDAP_BIND_PASSWORD": "professor",
+		"LDAP_BASE_DN":       "dc=planetexpress,dc=com",
 	}
 	loadEnv(configs)
 	cfg, err := config.New()
@@ -41,17 +47,53 @@ func TestNew(t *testing.T) {
 		log.Fatal(err)
 	}
 	expected := struct {
-		Port    string
-		CsrfKey string
+		SessionKey       string
+		Port             int
+		CsrfKey          string
+		LDAPHost         string
+		LDAPPort         int
+		LDAPBindUsername string
+		LDAPBindPassword string
+		LDAPBaseDN       string
 	}{
-		Port:    "9999",
-		CsrfKey: "some-32-byte-key",
+		SessionKey:       "some-32-byte-key",
+		Port:             9999,
+		CsrfKey:          "some-32-byte-key",
+		LDAPHost:         "localhost",
+		LDAPPort:         10389,
+		LDAPBindUsername: "cn=Hubert J. Farnsworth,ou=people,dc=planetexpress,dc=com",
+		LDAPBindPassword: "professor",
+		LDAPBaseDN:       "dc=planetexpress,dc=com",
+	}
+	if cfg.SessionKey != expected.SessionKey {
+		t.Errorf("Expected session key: %s\nGot: %s\n",
+			expected.SessionKey, cfg.SessionKey)
 	}
 	if cfg.Server.Port != expected.Port {
-		t.Errorf("Expected port: %s\nGot: %s\n", expected.Port, cfg.Server.Port)
+		t.Errorf("Expected port: %d\nGot: %d\n", expected.Port, cfg.Server.Port)
 	}
 	if cfg.Server.CsrfKey != expected.CsrfKey {
 		t.Errorf("Expected CsrfKey: %s\nGot: %s\n",
 			expected.CsrfKey, cfg.Server.CsrfKey)
+	}
+	if cfg.LDAP.Host != expected.LDAPHost {
+		t.Errorf("Expected LDAP host: %s\nGot: %s\n",
+			expected.LDAPHost, cfg.LDAP.Host)
+	}
+	if cfg.LDAP.Port != expected.LDAPPort {
+		t.Errorf("Expected LDAP port: %d\nGot: %d\n",
+			expected.LDAPPort, cfg.LDAP.Port)
+	}
+	if cfg.LDAP.BindUsername != expected.LDAPBindUsername {
+		t.Errorf("Expected LDAP bind username: %s\nGot: %s\n",
+			expected.LDAPBindUsername, cfg.LDAP.BindUsername)
+	}
+	if cfg.LDAP.BindPassword != expected.LDAPBindPassword {
+		t.Errorf("Expected LDAP bind password: %s\nGot: %s\n",
+			expected.LDAPBindPassword, cfg.LDAP.BindPassword)
+	}
+	if cfg.LDAP.BaseDN != expected.LDAPBaseDN {
+		t.Errorf("Expected LDAP base DN: %s\nGot: %s\n",
+			expected.LDAPBaseDN, cfg.LDAP.BaseDN)
 	}
 }
