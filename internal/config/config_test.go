@@ -37,8 +37,8 @@ func TestNew(t *testing.T) {
 		"CSRF_KEY":           "some-32-byte-key",
 		"LDAP_HOST":          "localhost",
 		"LDAP_PORT":          "10389",
-		"LDAP_BIND_USERNAME": "cn=Hubert J. Farnsworth,ou=people,dc=planetexpress,dc=com",
-		"LDAP_BIND_PASSWORD": "professor",
+		"LDAP_BIND_USERNAME": "cn=admin,dc=planetexpress,dc=com",
+		"LDAP_BIND_PASSWORD": "GoodNewsEveryone",
 		"LDAP_BASE_DN":       "dc=planetexpress,dc=com",
 	}
 	loadEnv(configs)
@@ -61,8 +61,8 @@ func TestNew(t *testing.T) {
 		CsrfKey:          "some-32-byte-key",
 		LDAPHost:         "localhost",
 		LDAPPort:         10389,
-		LDAPBindUsername: "cn=Hubert J. Farnsworth,ou=people,dc=planetexpress,dc=com",
-		LDAPBindPassword: "professor",
+		LDAPBindUsername: "cn=admin,dc=planetexpress,dc=com",
+		LDAPBindPassword: "GoodNewsEveryone",
 		LDAPBaseDN:       "dc=planetexpress,dc=com",
 	}
 	if cfg.SessionKey != expected.SessionKey {

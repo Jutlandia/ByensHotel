@@ -26,8 +26,8 @@ jobs:
           docker run -d --rm -p 10389:10389 -p 10636:10636 rroemhild/test-openldap
           go test ./...
         env:
-            CSRF_KEY: ${{ secrets.CSRF_KEY }}
-            SESSION_KEY: ${{ secrets.SESSION_KEY }}
+            CSRF_KEY: 'some-32-byte-key'
+            SESSION_KEY: 'some-32-byte-key'
             LDAP_HOST: 'localhost'
             LDAP_PORT: 10389
             LDAP_BIND_USERNAME: 'cn=admin,dc=planetexpress,dc=com'
