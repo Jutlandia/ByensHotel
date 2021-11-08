@@ -3,7 +3,9 @@ package handler
 import (
 	"html/template"
 	"net/http"
+	"strings"
 
+	"github.com/Jutlandia/ByensHotel/internal/client"
 	"github.com/Jutlandia/ByensHotel/internal/form"
 	"github.com/Jutlandia/ByensHotel/internal/tmpl"
 	"github.com/gorilla/csrf"
@@ -15,13 +17,25 @@ type authPageData struct {
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {
-	tmpl.Render(w, "index.html", nil)
+	tmpl.Render(w, r, "index.html", nil)
+}
+
+func LogOut(w http.ResponseWriter, r *http.Request) {
+	if client.IsAuthenticated(r) {
+		err := client.ClearSession(w, r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
+	redirectIfAuthenticated(w, r)
 	switch r.Method {
 	case http.MethodGet:
-		tmpl.Render(w, "login.html", authPageData{
+		tmpl.Render(w, r, "login.html", authPageData{
 			Form: &form.Login{},
 			CSRF: csrf.TemplateField(r),
 		})
@@ -31,21 +45,35 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			Password: r.PostFormValue("password"),
 		}
 		if !lf.IsValid() {
-			tmpl.Render(w, "login.html", authPageData{
+			tmpl.Render(w, r, "login.html", authPageData{
 				Form: lf,
 				CSRF: csrf.TemplateField(r),
 			})
 			return
 		}
-		// TODO: verify that the credentials are correct
+		err := client.Authenticate(w, r, lf.Username, lf.Password)
+		if err != nil {
+			// TODO: make this better with custom error names, e.g. ErrBadCredentials.
+			if err.Error() == "invalid username or password" {
+				lf.AddError("Overall", "Invalid username or password")
+			} else {
+				lf.AddError("Overall", "Something went wrong")
+			}
+			tmpl.Render(w, r, "login.html", authPageData{
+				Form: lf,
+				CSRF: csrf.TemplateField(r),
+			})
+			return
+		}
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
+	redirectIfAuthenticated(w, r)
 	switch r.Method {
 	case http.MethodGet:
-		tmpl.Render(w, "register.html", authPageData{
+		tmpl.Render(w, r, "register.html", authPageData{
 			Form: &form.Register{},
 			CSRF: csrf.TemplateField(r),
 		})
@@ -57,13 +85,37 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			ConfirmPassword: r.PostFormValue("confirmPassword"),
 		}
 		if !rf.IsValid() {
-			tmpl.Render(w, "register.html", authPageData{
+			tmpl.Render(w, r, "register.html", authPageData{
 				Form: rf,
 				CSRF: csrf.TemplateField(r),
 			})
 			return
 		}
-		// TODO: check if user already exists
+		err := client.CreateUser(rf.Username, rf.Email, rf.Password)
+		if err != nil {
+			if strings.HasSuffix(err.Error(), "already exist") {
+				errMsg := strings.Replace(err.Error(), "a", "A", 1)
+				rf.AddError("Overall", errMsg)
+			} else {
+				rf.AddError("Overall", "Something went wrong")
+			}
+			tmpl.Render(w, r, "register.html", authPageData{
+				Form: rf,
+				CSRF: csrf.TemplateField(r),
+			})
+			return
+		}
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
+	}
+}
+
+// redirectIfAuthenticated redirects users to "/" if they try to access an auth route
+// and already already authenticated.
+// TODO: come up with a better way of doing this.
+func redirectIfAuthenticated(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet || r.Method == http.MethodPost {
+		if client.IsAuthenticated(r) {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+		}
 	}
 }

@@ -8,9 +8,11 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/Jutlandia/ByensHotel/internal/client"
 	"github.com/Jutlandia/ByensHotel/internal/config"
 	"github.com/Jutlandia/ByensHotel/internal/filesystem"
 	"github.com/Jutlandia/ByensHotel/internal/handler"
+	"github.com/Jutlandia/ByensHotel/internal/storage"
 	"github.com/Jutlandia/ByensHotel/internal/tmpl"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
@@ -40,6 +42,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	ldapServer := storage.New(cfg.LDAP)
+	client.SetUp(ldapServer, cfg.SessionKey, env)
 	pwd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -51,11 +55,12 @@ func main() {
 	r.HandleFunc("/", handler.Home).Methods(http.MethodGet)
 	r.HandleFunc("/login", handler.Login).Methods(http.MethodGet, http.MethodPost)
 	r.HandleFunc("/register", handler.Register).Methods(http.MethodGet, http.MethodPost)
+	r.HandleFunc("/logout", handler.LogOut).Methods(http.MethodGet)
 	r.HandleFunc("/favicon.ico", favIconHandler)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileserver))
 
 	srv := &http.Server{
-		Addr:         fmt.Sprintf("127.0.0.1:%s", cfg.Server.Port),
+		Addr:         fmt.Sprintf("127.0.0.1:%d", cfg.Server.Port),
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,

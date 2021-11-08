@@ -27,9 +27,15 @@
 						<a class="navbar-item" href="/">
 							Home
 						</a>
-						<a class="navbar-item" href="/login">
-							Log in
-						</a>
+						{{ if .Client.IsAuthenticated }}
+							<a class="navbar-item" href="/logout">
+								Log out
+							</a>
+						{{ else }}
+							<a class="navbar-item" href="/login">
+								Log in
+							</a>
+						{{ end }}
 					</div>
 				</div>
 			</div>

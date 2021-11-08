@@ -23,5 +23,3 @@ jobs:
         run: go mod download
       - name: Run tests
         run: go test ./...
-        env:
-          CSRF_KEY: 'some-32-byte-key'

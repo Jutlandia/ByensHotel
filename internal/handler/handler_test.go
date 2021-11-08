@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -11,11 +12,46 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Jutlandia/ByensHotel/internal/client"
 	"github.com/Jutlandia/ByensHotel/internal/handler"
+	"github.com/Jutlandia/ByensHotel/internal/storage"
 	"github.com/Jutlandia/ByensHotel/internal/tmpl"
 )
 
-var templatesLoaded = false
+var (
+	env             = "test"
+	sessionKey      = "my-32-byte-session-key"
+	templatesLoaded = false
+)
+
+type testUser struct {
+}
+
+func (tu testUser) Username() string { return "fry" }
+
+func (tu testUser) Email() string { return "fry@planetexpress.com" }
+
+type testStorage struct {
+}
+
+func (ts testStorage) GetWithCredentials(username string, password string) (storage.User, error) {
+	if username == "fry" && password == "fry" {
+		return testUser{}, nil
+	}
+	return nil, fmt.Errorf("invalid username or password")
+}
+
+func (ts testStorage) GetByUsername(username string) (storage.User, error) {
+	return nil, nil
+}
+
+func (ts testStorage) GetByEmail(email string) (storage.User, error) {
+	return nil, nil
+}
+
+func (ts testStorage) Create(username string, email string, password string) error {
+	return nil
+}
 
 func loadTemplates(wd string) error {
 	err := os.Chdir(filepath.Join(wd, "..", ".."))
@@ -47,9 +83,11 @@ func setUp() {
 			log.Fatal(err)
 		}
 	}
+	ts := testStorage{}
+	client.SetUp(ts, sessionKey, env)
 }
 
-func getResult(method string, path string, body io.Reader, h http.HandlerFunc) *http.Response {
+func createResponse(method string, path string, body io.Reader, h http.HandlerFunc) *http.Response {
 	setUp()
 	req := httptest.NewRequest(method, path, body)
 	if method == http.MethodPost {
@@ -61,7 +99,7 @@ func getResult(method string, path string, body io.Reader, h http.HandlerFunc) *
 }
 
 func TestLoginGet(t *testing.T) {
-	resp := getResult(http.MethodGet, "/login", nil, handler.Login)
+	resp := createResponse(http.MethodGet, "/login", nil, handler.Login)
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status code: %d\nGot status code: %d\n",
 			http.StatusOK, resp.StatusCode)
@@ -80,20 +118,21 @@ func TestLoginGet(t *testing.T) {
 }
 
 func TestLoginRedirectIfSuccess(t *testing.T) {
-	formData := strings.NewReader("username=alice&password=123123")
-	resp := getResult(http.MethodPost, "/login", formData, handler.Login)
+	formData := strings.NewReader("username=fry&password=fry")
+	resp := createResponse(http.MethodPost, "/login", formData, handler.Login)
 	if resp.StatusCode != http.StatusSeeOther {
 		t.Errorf("Expected status code: %d\nGot: %d\n",
 			http.StatusSeeOther, resp.StatusCode)
 	}
 	if resp.Header.Get("Location") != "/" {
-		t.Errorf("Expected Location: /\nGot: %s\n", resp.Header.Get("Location"))
+		t.Errorf("Expected Location: /\nGot: %s\n",
+			resp.Header.Get("Location"))
 	}
 }
 
 func TestLoginErrorMsg(t *testing.T) {
 	formData := strings.NewReader("username=&password=")
-	resp := getResult(http.MethodPost, "/login", formData, handler.Login)
+	resp := createResponse(http.MethodPost, "/login", formData, handler.Login)
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status code: %d\nGot: %d\n",
 			http.StatusOK, resp.StatusCode)
@@ -111,7 +150,7 @@ func TestLoginErrorMsg(t *testing.T) {
 }
 
 func TestRegisterGet(t *testing.T) {
-	resp := getResult(http.MethodPost, "/register", nil, handler.Register)
+	resp := createResponse(http.MethodPost, "/register", nil, handler.Register)
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status code: %d\nGot status code: %d\n",
 			http.StatusOK, resp.StatusCode)
@@ -133,7 +172,7 @@ func TestRegisterGet(t *testing.T) {
 
 func TestRegisterRedirectIfSuccess(t *testing.T) {
 	formData := "username=alice&email=test@mail.com&password=123123&confirmPassword=123123"
-	resp := getResult(http.MethodPost, "/register", strings.NewReader(formData), handler.Register)
+	resp := createResponse(http.MethodPost, "/register", strings.NewReader(formData), handler.Register)
 	if resp.StatusCode != http.StatusSeeOther {
 		t.Errorf("Expected status code: %d\nGot: %d\n",
 			http.StatusSeeOther, resp.StatusCode)
@@ -145,7 +184,7 @@ func TestRegisterRedirectIfSuccess(t *testing.T) {
 
 func TestRegisterErrorMsg(t *testing.T) {
 	formData := strings.NewReader("username=&email=&password=&confirmPassword=")
-	resp := getResult(http.MethodPost, "/register", formData, handler.Register)
+	resp := createResponse(http.MethodPost, "/register", formData, handler.Register)
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Expected status code: %d\nGot: %d\n",
 			http.StatusOK, resp.StatusCode)
