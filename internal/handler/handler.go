@@ -103,6 +103,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 				Form: rf,
 				CSRF: csrf.TemplateField(r),
 			})
+			return
 		}
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	}

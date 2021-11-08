@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -12,8 +13,8 @@ import (
 	"testing"
 
 	"github.com/Jutlandia/ByensHotel/internal/client"
-	"github.com/Jutlandia/ByensHotel/internal/config"
 	"github.com/Jutlandia/ByensHotel/internal/handler"
+	"github.com/Jutlandia/ByensHotel/internal/storage"
 	"github.com/Jutlandia/ByensHotel/internal/tmpl"
 )
 
@@ -21,14 +22,36 @@ var (
 	env             = "test"
 	sessionKey      = "my-32-byte-session-key"
 	templatesLoaded = false
-	testLDAP        = config.LDAP{
-		Host:         "localhost",
-		Port:         10389,
-		BindUsername: "cn=Hubert J. Farnsworth,ou=people,dc=planetexpress,dc=com",
-		BindPassword: "professor",
-		BaseDN:       "dc=planetexpress,dc=com",
-	}
 )
+
+type testUser struct {
+}
+
+func (tu testUser) Username() string { return "fry" }
+
+func (tu testUser) Email() string { return "fry@planetexpress.com" }
+
+type testStorage struct {
+}
+
+func (ts testStorage) GetWithCredentials(username string, password string) (storage.User, error) {
+	if username == "fry" && password == "fry" {
+		return testUser{}, nil
+	}
+	return nil, fmt.Errorf("invalid username or password")
+}
+
+func (ts testStorage) GetByUsername(username string) (storage.User, error) {
+	return nil, nil
+}
+
+func (ts testStorage) GetByEmail(email string) (storage.User, error) {
+	return nil, nil
+}
+
+func (ts testStorage) Create(username string, email string, password string) error {
+	return nil
+}
 
 func loadTemplates(wd string) error {
 	err := os.Chdir(filepath.Join(wd, "..", ".."))
@@ -60,7 +83,8 @@ func setUp() {
 			log.Fatal(err)
 		}
 	}
-	client.SetUp(sessionKey, env, testLDAP)
+	ts := testStorage{}
+	client.SetUp(ts, sessionKey, env)
 }
 
 func createResponse(method string, path string, body io.Reader, h http.HandlerFunc) *http.Response {
@@ -94,8 +118,6 @@ func TestLoginGet(t *testing.T) {
 }
 
 func TestLoginRedirectIfSuccess(t *testing.T) {
-	// DO NOT CHANGE "fry"!
-	// "fry" is a fake user in "rroemhild/test-openldap"
 	formData := strings.NewReader("username=fry&password=fry")
 	resp := createResponse(http.MethodPost, "/login", formData, handler.Login)
 	if resp.StatusCode != http.StatusSeeOther {
@@ -103,9 +125,8 @@ func TestLoginRedirectIfSuccess(t *testing.T) {
 			http.StatusSeeOther, resp.StatusCode)
 	}
 	if resp.Header.Get("Location") != "/" {
-		hint := "Did you forget to turn on the ldap test server?"
-		t.Errorf("Expected Location: /\nGot: %s\n%s\n",
-			resp.Header.Get("Location"), hint)
+		t.Errorf("Expected Location: /\nGot: %s\n",
+			resp.Header.Get("Location"))
 	}
 }
 
@@ -149,17 +170,16 @@ func TestRegisterGet(t *testing.T) {
 	}
 }
 
-// TODO: figure out how to test this
 func TestRegisterRedirectIfSuccess(t *testing.T) {
-	//	formData := "username=alice&email=test@mail.com&password=123123&confirmPassword=123123"
-	//	resp := createResponse(http.MethodPost, "/register", strings.NewReader(formData), handler.Register)
-	//	if resp.StatusCode != http.StatusSeeOther {
-	//		t.Errorf("Expected status code: %d\nGot: %d\n",
-	//			http.StatusSeeOther, resp.StatusCode)
-	//	}
-	//	if resp.Header.Get("Location") != "/login" {
-	//		t.Errorf("Expected Location: /login\nGot: %s\n", resp.Header.Get("Location"))
-	//	}
+	formData := "username=alice&email=test@mail.com&password=123123&confirmPassword=123123"
+	resp := createResponse(http.MethodPost, "/register", strings.NewReader(formData), handler.Register)
+	if resp.StatusCode != http.StatusSeeOther {
+		t.Errorf("Expected status code: %d\nGot: %d\n",
+			http.StatusSeeOther, resp.StatusCode)
+	}
+	if resp.Header.Get("Location") != "/login" {
+		t.Errorf("Expected Location: /login\nGot: %s\n", resp.Header.Get("Location"))
+	}
 }
 
 func TestRegisterErrorMsg(t *testing.T) {

@@ -1,29 +1,53 @@
 package client_test
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/Jutlandia/ByensHotel/internal/client"
-	"github.com/Jutlandia/ByensHotel/internal/config"
+	"github.com/Jutlandia/ByensHotel/internal/storage"
 )
 
 var (
 	env        = "test"
 	sessionKey = "my-32-byte-session-key"
-	testLDAP   = config.LDAP{
-		Host:         "localhost",
-		Port:         10389,
-		BindUsername: "cn=Hubert J. Farnsworth,ou=people,dc=planetexpress,dc=com",
-		BindPassword: "professor",
-		BaseDN:       "dc=planetexpress,dc=com",
-	}
 )
 
+type testUser struct {
+}
+
+func (tu testUser) Username() string { return "fry" }
+
+func (tu testUser) Email() string { return "fry@planetexpress.com" }
+
+type testStorage struct {
+}
+
+func (ts testStorage) GetWithCredentials(username string, password string) (storage.User, error) {
+	if username == "fry" && password == "fry" {
+		return testUser{}, nil
+	}
+	return nil, fmt.Errorf("invalid username or password")
+}
+
+func (ts testStorage) GetByUsername(username string) (storage.User, error) {
+	return nil, nil
+}
+
+func (ts testStorage) GetByEmail(email string) (storage.User, error) {
+	return nil, nil
+}
+
+func (ts testStorage) Create(username string, email string, password string) error {
+	return nil
+}
+
 func TestAuthenticate(t *testing.T) {
-	client.SetUp(sessionKey, env, testLDAP)
+	ts := testStorage{}
+	client.SetUp(ts, sessionKey, env)
 	r := httptest.NewRequest(http.MethodPost, "/login", nil)
 	w := httptest.NewRecorder()
 	err := client.Authenticate(w, r, "fry", "fry")
@@ -36,7 +60,8 @@ func TestAuthenticate(t *testing.T) {
 }
 
 func TestClearSession(t *testing.T) {
-	client.SetUp(sessionKey, env, testLDAP)
+	ts := testStorage{}
+	client.SetUp(ts, sessionKey, env)
 	r := httptest.NewRequest(http.MethodGet, "/logout", nil)
 	w := httptest.NewRecorder()
 	err := client.Authenticate(w, r, "fry", "fry")

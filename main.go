@@ -12,6 +12,7 @@ import (
 	"github.com/Jutlandia/ByensHotel/internal/config"
 	"github.com/Jutlandia/ByensHotel/internal/filesystem"
 	"github.com/Jutlandia/ByensHotel/internal/handler"
+	"github.com/Jutlandia/ByensHotel/internal/storage"
 	"github.com/Jutlandia/ByensHotel/internal/tmpl"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
@@ -41,7 +42,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	client.SetUp(cfg.SessionKey, env, cfg.LDAP)
+	ldapServer := storage.New(cfg.LDAP)
+	client.SetUp(ldapServer, cfg.SessionKey, env)
 	pwd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)

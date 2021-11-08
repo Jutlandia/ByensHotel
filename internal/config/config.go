@@ -20,8 +20,7 @@ type Server struct {
 }
 
 type LDAP struct {
-	Host         string
-	Port         int
+	URL          string
 	BindUsername string
 	BindPassword string
 	BaseDN       string
@@ -41,13 +40,9 @@ func New() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	ldapHost := os.Getenv("LDAP_HOST")
-	if ldapHost == "" {
-		return nil, fmt.Errorf("missing ldap host")
-	}
-	ldapPort, err := getIntEnv("LDAP_PORT", 386, "invalid ldap port")
-	if err != nil {
-		return nil, err
+	ldapURL := os.Getenv("LDAP_URL")
+	if ldapURL == "" {
+		return nil, fmt.Errorf("missing ldap url")
 	}
 	bindUsername := os.Getenv("LDAP_BIND_USERNAME")
 	if bindUsername == "" {
@@ -68,8 +63,7 @@ func New() (*Config, error) {
 			CsrfKey: csrfKey,
 		},
 		LDAP: LDAP{
-			Host:         ldapHost,
-			Port:         ldapPort,
+			URL:          ldapURL,
 			BindUsername: bindUsername,
 			BindPassword: bindPassword,
 			BaseDN:       baseDN,

@@ -35,8 +35,6 @@ ByensHotel will run in development mode if `HOTEL_ENV` is not set.
 
 Run `go test ./...` to run all specs.
 
-*Note:* Make sure that the `rroemhild/test-openldap` container is running before you run `go test`.
-
 ## Contributing
 
 1. Fork it (<https://github.com/Jutlandia/ByensHotel/fork>)
