@@ -109,6 +109,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func NotFound(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.WriteHeader(http.StatusNotFound)
+	tmpl.Render(w, r, "404.html", nil)
+}
+
 // redirectIfAuthenticated redirects users to "/" if they try to access an auth route
 // and already already authenticated.
 // TODO: come up with a better way of doing this.

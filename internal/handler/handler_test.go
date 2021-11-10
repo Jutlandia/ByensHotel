@@ -60,9 +60,9 @@ func loadTemplates(wd string) error {
 	}
 	tmpl.Load([]string{
 		"index.html",
+		"404.html",
 		"auth/login.html",
 		"auth/register.html",
-		"layouts/base.html",
 	})
 	templatesLoaded = true
 	err = os.Chdir(wd)
@@ -200,5 +200,17 @@ func TestRegisterErrorMsg(t *testing.T) {
 		if !bytes.Contains(body, []byte(content)) {
 			t.Errorf("Expected: %s\n", content)
 		}
+	}
+}
+
+func TestNotFound(t *testing.T) {
+	res := createResponse(http.MethodGet, "/not-found", nil, handler.NotFound)
+	if res.StatusCode != http.StatusNotFound {
+		t.Errorf("Expected status code: %d\nGot: %d\n",
+			http.StatusNotFound, res.StatusCode)
+	}
+	body, _ := io.ReadAll(res.Body)
+	if !bytes.Contains(body, []byte("404 - Not Found")) {
+		t.Error("Expected 404 page to contain \"404 - Not Found\"")
 	}
 }
