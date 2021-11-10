@@ -22,9 +22,9 @@ import (
 func init() {
 	tmpl.Load([]string{
 		"index.html",
+		"404.html",
 		"auth/login.html",
 		"auth/register.html",
-		"layouts/base.html",
 	})
 }
 
@@ -57,6 +57,7 @@ func main() {
 	r.HandleFunc("/register", handler.Register).Methods(http.MethodGet, http.MethodPost)
 	r.HandleFunc("/logout", handler.LogOut).Methods(http.MethodGet)
 	r.HandleFunc("/favicon.ico", favIconHandler)
+	r.NotFoundHandler = http.HandlerFunc(handler.NotFound)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fileserver))
 
 	srv := &http.Server{
